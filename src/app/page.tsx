@@ -46,7 +46,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-slate-800 px-6 py-6 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} EM ROUNDS with PK. All rights reserved.
+        © 2026 EM ROUNDS with PK. All rights reserved.
       </footer>
     </main>
   );
