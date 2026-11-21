@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+# EM ROUNDS with PK
+
+A premium medical education platform focused on structured emergency medicine education and clinical knowledge assessment.
+
+## Project Status
+
+Foundation development.
+
+The application currently contains:
+- Next.js application foundation
+- TypeScript
+- Tailwind CSS
+- Supabase client configuration
+- Placeholder homepage
+
+Product features have not yet been implemented.
+
+## Technology Stack
+
+- Next.js App Router
+- React
+- TypeScript
+- Tailwind CSS
+- Supabase PostgreSQL and Auth
+- Zod
+- React Hook Form
+- Vercel
+- Razorpay
+- Mux (subject to video provider evaluation)
+
+## Development Environment
+
+The project is developed using:
+- Ubuntu on WSL2
+- Visual Studio Code
+- Node.js
+- npm
+- Git
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a local environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+Configure the Supabase environment variables in `.env.local`.
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run lint` | ESLint checks |
+| `npm run build` | Production build |
+| `npm run start` | Production server |
 
-## Learn More
+## Security
 
-To learn more about Next.js, take a look at the following resources:
+- Never commit `.env.local`.
+- Never expose Supabase secret or service-role keys in browser code.
+- Database access must be protected using appropriate Row Level Security policies.
+- Sensitive payment and entitlement operations must be handled server-side.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Principles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Mobile-first responsive design.
+- Modular application architecture.
+- Type safety.
+- Server-side validation for sensitive operations.
+- Git checkpoints for meaningful milestones.
+- No premature implementation of product features.
 
-## Deploy on Vercel
+## Current Scope
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The current phase is limited to establishing the development foundation.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Authentication, subscriptions, payments, video playback, QBank, administration and analytics will be implemented in later phases after their requirements are finalized.
