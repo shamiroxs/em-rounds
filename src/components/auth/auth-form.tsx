@@ -153,7 +153,36 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   OR
   <span className="divider-line" />
 </div>
-          <button type="button" disabled={busy} onClick={handleGoogleSignIn} className="secondary-button w-full text-sm">Continue with Google</button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={handleGoogleSignIn}
+            className="secondary-button google-button w-full text-sm"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-4 w-4 shrink-0"
+            >
+              <path
+                fill="#4285F4"
+                d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.5-1.14 2.77-2.4 3.62v3.01h3.88c2.27-2.09 3.54-5.17 3.54-8.87z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.01c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.26v3.11C3.23 21.3 7.28 24 12 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.28 14.28c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28V6.61H1.26A11.98 11.98 0 0 0 0 12c0 1.94.46 3.77 1.26 5.39l4.02-3.11z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.28 0 3.23 2.7 1.26 6.61l4.02 3.11c.95-2.85 3.6-4.96 6.72-4.96z"
+              />
+            </svg>
+            <span>Continue with Google</span>
+          </button>
         </>
       )}
 

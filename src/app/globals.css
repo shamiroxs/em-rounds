@@ -369,6 +369,22 @@ input:focus-visible {
 
 /* Respect reduced-motion preferences */
 
+.google-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.google-button:hover:not(:disabled) {
+  background: var(--surface-soft);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
