@@ -33,10 +33,13 @@ export default function Home() {
             develop confidence in emergency care.
           </p>
 
-          <div className="mt-12">
-            <span className="inline-block rounded-lg bg-cyan-500 px-7 py-3 font-semibold text-slate-950">
-              EM ROUNDS with PK
-            </span>
+          <div className="mt-12 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="/signup" className="inline-flex justify-center rounded-lg bg-cyan-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">
+              Create your account
+            </a>
+            <a href="/login" className="inline-flex justify-center rounded-lg border border-slate-600 px-7 py-3 font-semibold text-slate-200 transition hover:bg-slate-800">
+              Sign in
+            </a>
           </div>
 
           <p className="mt-16 text-sm text-slate-500">

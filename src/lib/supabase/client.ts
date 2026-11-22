@@ -1,27 +1,22 @@
+import { createBrowserClient } from "@supabase/ssr";
 
-"use client";
+let supabaseBrowserClient: ReturnType<typeof createBrowserClient> | undefined;
 
-import { createClient } from "@supabase/supabase-js";
-
-let supabaseClient: ReturnType<typeof createClient> | null = null;
-
-export function getSupabaseBrowserClient() {
+export function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabasePublishableKey =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabasePublishableKey) {
-    throw new Error(
-      "Supabase environment variables are not configured."
-    );
+    throw new Error("Supabase public environment variables are not configured.");
   }
 
-  if (!supabaseClient) {
-    supabaseClient = createClient(
+  if (!supabaseBrowserClient) {
+    supabaseBrowserClient = createBrowserClient(
       supabaseUrl,
-      supabasePublishableKey
+      supabasePublishableKey,
     );
   }
 
-  return supabaseClient;
+  return supabaseBrowserClient;
 }

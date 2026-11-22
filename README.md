@@ -1,60 +1,36 @@
-
 # EM ROUNDS with PK
 
 A premium medical education platform focused on structured emergency medicine education and clinical knowledge assessment.
 
-## Project Status
+## Project status
 
-Foundation development.
+Foundation development with Phase 03 authentication source prepared.
 
-The application currently contains:
-- Next.js application foundation
-- TypeScript
-- Tailwind CSS
-- Supabase client configuration
-- Placeholder homepage
+Current application foundation:
+- Next.js App Router, React, TypeScript and Tailwind CSS
+- Supabase browser and server integration source
+- Cookie-based session refresh through Next.js 16 Proxy
+- Email/password and Google OAuth authentication flows
+- Protected account and administrator placeholder routes
 
-Product features have not yet been implemented.
+The authentication source requires `@supabase/ssr` to be installed and the Supabase dashboard settings to be completed before it can be run. See `docs/AUTHENTICATION_IMPLEMENTATION.md` and `docs/SUPABASE_INTEGRATION.md`.
 
-## Technology Stack
-
-- Next.js App Router
-- React
-- TypeScript
-- Tailwind CSS
-- Supabase PostgreSQL and Auth
-- Zod
-- React Hook Form
-- Vercel
-- Razorpay
-- Mux (subject to video provider evaluation)
-
-## Development Environment
-
-The project is developed using:
-- Ubuntu on WSL2
-- Visual Studio Code
-- Node.js
-- npm
-- Git
-
-## Getting Started
-
-Install dependencies:
+## Install dependencies
 
 ```bash
 npm install
+npm install @supabase/ssr
 ```
 
-Create a local environment file:
+## Environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-Configure the Supabase environment variables in `.env.local`.
+Add the Supabase project URL and publishable key to `.env.local`. Never commit `.env.local` or expose service-role/secret keys in browser code.
 
-Start the development server:
+## Run locally
 
 ```bash
 npm run dev
@@ -62,7 +38,7 @@ npm run dev
 
 Open http://localhost:3000.
 
-## Available Commands
+## Available commands
 
 | Command | Purpose |
 |---|---|
@@ -71,24 +47,6 @@ Open http://localhost:3000.
 | `npm run build` | Production build |
 | `npm run start` | Production server |
 
-## Security
+## Production safety
 
-- Never commit `.env.local`.
-- Never expose Supabase secret or service-role keys in browser code.
-- Database access must be protected using appropriate Row Level Security policies.
-- Sensitive payment and entitlement operations must be handled server-side.
-
-## Development Principles
-
-- Mobile-first responsive design.
-- Modular application architecture.
-- Type safety.
-- Server-side validation for sensitive operations.
-- Git checkpoints for meaningful milestones.
-- No premature implementation of product features.
-
-## Current Scope
-
-The current phase is limited to establishing the development foundation.
-
-Authentication, subscriptions, payments, video playback, QBank, administration and analytics will be implemented in later phases after their requirements are finalized.
+The configured Supabase project is the production project. Do not run database reset or migration deployment commands as part of the authentication phase. The auth implementation uses the existing profiles, roles, RLS policies and role-check functions; it introduces no schema changes.
