@@ -24,10 +24,11 @@ export function SignOutButton() {
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <button onClick={signOut} disabled={busy} className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-60">
+      <button onClick={signOut} disabled={busy} className="secondary-button px-4 py-2 text-sm">
         {busy ? "Signing out…" : "Sign out"}
       </button>
-      {error && <span role="alert" className="text-xs text-red-300">{error}</span>}
+      {error && <span role="alert" className="text-xs"
+style={{ color: "var(--danger-text)" }}>{error}</span>}
     </div>
   );
 }

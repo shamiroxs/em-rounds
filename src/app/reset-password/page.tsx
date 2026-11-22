@@ -5,5 +5,5 @@ export const instant = false;
 
 export default async function ResetPasswordPage() {
   await requireUser();
-  return <main className="flex min-h-screen items-center justify-center bg-[#0B1220] px-4 py-12"><AuthForm mode="reset" /></main>;
+  return <main className="app-shell flex min-h-screen items-center justify-center px-4 py-12"><AuthForm mode="reset" /></main>;
 }

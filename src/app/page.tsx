@@ -1,54 +1,55 @@
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col bg-[#0B1220] text-white">
-      <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-7">
+    <main className="app-shell flex flex-col">
+      <header className="site-header mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-7">
         <div>
-          <span className="text-xl font-bold tracking-tight">
-            EM ROUNDS <span className="text-cyan-400">with PK</span>
-          </span>
+         <span className="brand text-xl">
+          EM ROUNDS <span className="brand-accent">with PK</span>
+        </span>
         </div>
 
-        <span className="rounded-full border border-slate-700 px-4 py-2 text-xs font-medium text-slate-300">
+        <span className="header-pill px-4 py-2 text-xs font-medium">
           Medical Education
         </span>
       </header>
 
-      <section className="flex flex-1 items-center justify-center px-6 py-20">
+      <section className="hero-section flex flex-1 items-center justify-center px-6 py-20">
         <div className="max-w-3xl text-center">
-          <p className="mb-6 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">
+          <p className="eyebrow mb-6">
             Learn · Practise · Master
           </p>
 
-          <h1 className="text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
+          <h1 className="hero-title">
             EMERGENCY
             <br />
             MEDICINE
-            <span className="block text-cyan-400">Education.</span>
+            <span className="hero-accent block">Education.</span>
           </h1>
 
-          <p className="mx-auto mt-8 max-w-xl text-base leading-8 text-slate-300 sm:text-lg">
+          <p className="body-copy mx-auto mt-8 max-w-xl text-base sm:text-lg">
             A structured learning platform for emergency medicine.
             Explore clinical topics, strengthen your knowledge and
             develop confidence in emergency care.
           </p>
 
           <div className="mt-12 flex flex-col justify-center gap-3 sm:flex-row">
-            <a href="/signup" className="inline-flex justify-center rounded-lg bg-cyan-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">
+            <a href="/signup" className="primary-button">
               Create your account
             </a>
-            <a href="/login" className="inline-flex justify-center rounded-lg border border-slate-600 px-7 py-3 font-semibold text-slate-200 transition hover:bg-slate-800">
+            <a href="/login" className="secondary-button">
               Sign in
             </a>
           </div>
 
-          <p className="mt-16 text-sm text-slate-500">
+          <p className="mt-16 text-sm"
+              style={{ color: "var(--subtle)" }}>
             An educational initiative by Dr. Roshan PK
           </p>
         </div>
       </section>
 
-      <footer className="border-t border-slate-800 px-6 py-6 text-center text-xs text-slate-500">
+      <footer className="site-footer px-6 py-6 text-center text-xs">
         © 2026 EM ROUNDS with PK. All rights reserved.
       </footer>
     </main>

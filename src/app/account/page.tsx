@@ -17,21 +17,21 @@ export default async function AccountPage() {
   const email = typeof claims.email === "string" ? claims.email : "Signed-in account";
 
   return (
-    <main className="min-h-screen bg-[#0B1220] text-white">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
-        <Link href="/" className="font-bold tracking-tight">EM ROUNDS <span className="text-cyan-400">with PK</span></Link>
+    <main className="app-shell">
+      <header className="site-header mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
+        <Link href="/" className="brand">EM ROUNDS <span className="brand-accent">with PK</span></Link>
         <SignOutButton />
       </header>
       <section className="mx-auto max-w-5xl px-5 py-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">Learner space</p>
+        <p className="eyebrow">Learner space</p>
         <h1 className="mt-3 text-3xl font-bold">Your account</h1>
-        <div className="mt-8 rounded-2xl border border-slate-700 bg-slate-900 p-6">
+        <div className="surface-card mt-8">
           <p className="text-lg font-semibold">{profile?.display_name || "Welcome"}</p>
-          <p className="mt-1 text-sm text-slate-400">{email}</p>
-          <p className="mt-5 inline-flex rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300">{role}</p>
+          <p className="muted-copy mt-1 text-sm">{email}</p>
+          <p className="role-pill mt-5">{role}</p>
         </div>
-        <p className="mt-6 text-sm text-slate-400">Your learning dashboard will appear here as platform features are introduced.</p>
-        {isAdmin && <Link href="/admin" className="mt-6 inline-block rounded-lg border border-cyan-700 px-4 py-2 text-sm text-cyan-300 hover:bg-cyan-950/40">Open administration</Link>}
+        <p className="muted-copy mt-6 text-sm">Your learning dashboard will appear here as platform features are introduced.</p>
+        {isAdmin && <Link href="/admin" className="admin-link mt-6">Open administration</Link>}
       </section>
     </main>
   );

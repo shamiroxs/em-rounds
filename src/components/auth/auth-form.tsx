@@ -105,59 +105,63 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const needsEmail = mode !== "reset";
 
   return (
-    <section className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 sm:p-8">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+    <section className="auth-card">
+      <p className="eyebrow mb-3">
         EM ROUNDS with PK
       </p>
-      <h1 className="text-2xl font-bold tracking-tight text-white">{titles[mode]}</h1>
-      <p className="mt-2 text-sm leading-6 text-slate-400">
+      <h1 className="auth-title">{titles[mode]}</h1>
+      <p className="body-copy mt-2 text-sm">
         {mode === "signup" && "Create a learner account to access your personal learning space."}
         {mode === "login" && "Sign in to continue your emergency medicine learning."}
         {mode === "forgot" && "Enter your account email and we’ll send a reset link if it is registered."}
         {mode === "reset" && "Use a strong password you have not used elsewhere."}
       </p>
 
-      <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
+      <form className="form-stack mt-7" onSubmit={handleSubmit}>
         {mode === "signup" && (
-          <label className="block text-sm font-medium text-slate-200">
+          <label className="field-label">
             Full name
-            <input required autoComplete="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-white outline-none transition focus:border-cyan-400" />
+            <input required autoComplete="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} className="field-input mt-2" />
           </label>
         )}
         {needsEmail && (
-          <label className="block text-sm font-medium text-slate-200">
+          <label className="field-label">
             Email address
-            <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-white outline-none transition focus:border-cyan-400" />
+            <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="field-input mt-2" />
           </label>
         )}
         {needsPassword && (
-          <label className="block text-sm font-medium text-slate-200">
+          <label className="field-label">
             {mode === "reset" ? "New password" : "Password"}
-            <input required type="password" minLength={8} autoComplete={mode === "reset" ? "new-password" : mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-white outline-none transition focus:border-cyan-400" />
-            {mode !== "login" && <span className="mt-1 block text-xs text-slate-500">Use at least 8 characters.</span>}
+            <input required type="password" minLength={8} autoComplete={mode === "reset" ? "new-password" : mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} className="field-input mt-2" />
+            {mode !== "login" && <span className="field-hint">Use at least 8 characters.</span>}
           </label>
         )}
 
-        {error && <p role="alert" className="rounded-lg border border-red-900/70 bg-red-950/40 px-3 py-2 text-sm text-red-300">{error}</p>}
-        {message && <p role="status" className="rounded-lg border border-emerald-900/70 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-300">{message}</p>}
+        {error && <p role="alert" className="error-box">{error}</p>}
+        {message && <p role="status" className="success-box">{message}</p>}
 
-        <button disabled={busy} type="submit" className="w-full rounded-lg bg-cyan-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60">
+        <button disabled={busy} type="submit" className="primary-button w-full">
           {busy ? "Please wait…" : mode === "login" ? "Sign in" : mode === "signup" ? "Create account" : mode === "forgot" ? "Send reset link" : "Update password"}
         </button>
       </form>
 
       {(mode === "login" || mode === "signup") && (
         <>
-          <div className="my-5 flex items-center gap-3 text-xs text-slate-500"><span className="h-px flex-1 bg-slate-700" />OR<span className="h-px flex-1 bg-slate-700" /></div>
-          <button type="button" disabled={busy} onClick={handleGoogleSignIn} className="w-full rounded-lg border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800 disabled:opacity-60">Continue with Google</button>
+          <div className="divider-row">
+  <span className="divider-line" />
+  OR
+  <span className="divider-line" />
+</div>
+          <button type="button" disabled={busy} onClick={handleGoogleSignIn} className="secondary-button w-full text-sm">Continue with Google</button>
         </>
       )}
 
-      <div className="mt-6 flex flex-wrap justify-between gap-3 text-sm text-slate-400">
-        {mode === "login" && <><Link className="hover:text-cyan-300" href="/forgot-password">Forgot password?</Link><Link className="hover:text-cyan-300" href="/signup">Create an account</Link></>}
-        {mode === "signup" && <Link className="hover:text-cyan-300" href="/login">Already have an account? Sign in</Link>}
-        {mode === "forgot" && <Link className="hover:text-cyan-300" href="/login">Back to sign in</Link>}
-        {mode === "reset" && <Link className="hover:text-cyan-300" href="/login">Back to sign in</Link>}
+      <div className="auth-links">
+        {mode === "login" && <><Link className="text-link" href="/forgot-password">Forgot password?</Link><Link className="text-link" href="/signup">Create an account</Link></>}
+        {mode === "signup" && <Link className="text-link" href="/login">Already have an account? Sign in</Link>}
+        {mode === "forgot" && <Link className="text-link" href="/login">Back to sign in</Link>}
+        {mode === "reset" && <Link className="text-link" href="/login">Back to sign in</Link>}
       </div>
     </section>
   );
