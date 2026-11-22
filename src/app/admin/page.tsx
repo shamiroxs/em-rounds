@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
+export const instant = false;
+
 export default async function AdminPage() {
   await requireAdmin();
 

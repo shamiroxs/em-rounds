@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
+export const instant = false;
+
 export default async function AccountPage() {
   const { supabase, userId, claims } = await requireUser();
   const [{ data: profile }, { data: isAdmin }, { data: isEditor }, { data: isOwner }] = await Promise.all([
