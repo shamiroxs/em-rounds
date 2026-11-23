@@ -45,7 +45,7 @@ export default function StudentLayout({
             title="Account"
             className="icon-btn" // match your ThemeToggle styling
             >
-            <CircleUser size={20} strokeWidth={1.75} />
+            <CircleUser size={28} strokeWidth={1.75} />
             </Link>
         </div>
       </header>

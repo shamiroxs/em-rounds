@@ -385,9 +385,9 @@ input:focus-visible {
 }
 
 .capsule-toggle {
-  --track-width: 46px;
-  --track-height: 26px;
-  --padding: 2px;
+  --track-width: 64px;
+  --track-height: 36px;
+  --padding: 3px;
   --thumb-size: calc(var(--track-height) - var(--padding) * 2);
 
   position: relative;
