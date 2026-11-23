@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { requireUser } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BottomNav, TopNav } from "@/components/student-nav";
+import { CircleUser } from "lucide-react";
 
 // Checks the login inside a Suspense boundary, then shows the page.
 async function AuthGate({ children }: { children: React.ReactNode }) {
@@ -37,7 +38,14 @@ export default function StudentLayout({
           <TopNav />
         </Suspense>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <Link href="/account" className="text-link">Account</Link>
+          <Link 
+            href="/account" 
+            aria-label="Account" 
+            title="Account"
+            className="icon-btn" // match your ThemeToggle styling
+            >
+            <CircleUser size={20} strokeWidth={1.75} />
+            </Link>
           <ThemeToggle />
         </div>
       </header>
