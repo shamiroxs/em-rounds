@@ -733,3 +733,35 @@ input:focus-visible {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
 }
+
+/* ===== Home: calm breathing card ===== */
+
+.relief-card {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--accent-soft);
+  padding: 1.5rem 1rem;
+}
+
+.breathe-circle {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
+  animation: breathe 8s ease-in-out infinite;
+}
+
+.relief-text {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(0.7); }
+  50% { transform: scale(1.15); }
+}

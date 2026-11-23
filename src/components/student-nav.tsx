@@ -5,14 +5,14 @@ import { usePathname } from "next/navigation";
 import { BookOpen, Home, ListChecks, UserRound } from "lucide-react";
 
 const items = [
-  { href: "/", label: "Home", icon: Home },
+  { href: "/home", label: "Home", icon: Home },
   { href: "/learn", label: "Learn", icon: BookOpen },
   { href: "/qbank", label: "QBank", icon: ListChecks },
   { href: "/my-learning", label: "My Learning", icon: UserRound },
 ];
 
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
 export function TopNav() {

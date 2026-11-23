@@ -33,7 +33,15 @@ export async function proxy(request: NextRequest) {
   });
 
   // This verifies the JWT and refreshes the session when needed.
-  await supabase.auth.getClaims();
+    const { data } = await supabase.auth.getClaims();
+
+  // Signed-in users never see the public landing page.
+  if (request.nextUrl.pathname === "/" && data?.claims?.sub) {
+    const redirect = NextResponse.redirect(new URL("/home", request.url));
+    // Keep any refreshed session cookies.
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
+  }
 
   return response;
 }
