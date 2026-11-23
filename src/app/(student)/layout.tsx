@@ -38,6 +38,7 @@ export default function StudentLayout({
           <TopNav />
         </Suspense>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <ThemeToggle />
           <Link 
             href="/account" 
             aria-label="Account" 
@@ -46,7 +47,6 @@ export default function StudentLayout({
             >
             <CircleUser size={20} strokeWidth={1.75} />
             </Link>
-          <ThemeToggle />
         </div>
       </header>
       <main className="page-container">
