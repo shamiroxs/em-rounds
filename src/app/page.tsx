@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   return (
@@ -9,9 +10,9 @@ export default function Home() {
         </span>
         </div>
 
-        <span className="header-pill px-4 py-2 text-xs font-medium">
-          Medical Education
-        </span>
+        <div className="flex items-center gap-3">
+        <ThemeToggle />
+        </div>
       </header>
 
       <section className="hero-section flex flex-1 items-center justify-center px-6 py-20">
