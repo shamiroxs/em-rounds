@@ -30,7 +30,10 @@ export default async function AccountPage() {
           <p className="muted-copy mt-1 text-sm">{email}</p>
           <p className="role-pill mt-5">{role}</p>
         </div>
-        <p className="muted-copy mt-6 text-sm">Your learning dashboard will appear here as platform features are introduced.</p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link href="/learn" className="primary-button">Browse courses</Link>
+          <Link href="/my-learning" className="secondary-button">My Learning</Link>
+        </div>
         {isAdmin && <Link href="/admin" className="admin-link mt-6">Open administration</Link>}
       </section>
     </main>

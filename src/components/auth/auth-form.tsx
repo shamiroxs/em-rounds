@@ -39,13 +39,13 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           password,
           options: {
             data: { full_name: displayName.trim() },
-            emailRedirectTo: `${callbackUrl}?next=/account`,
+            emailRedirectTo: `${callbackUrl}?next=/learn`,
           },
         });
         if (authError) throw authError;
 
         if (data.session) {
-          router.replace("/account");
+          router.replace("/learn");
           router.refresh();
         } else {
           setMessage(
@@ -58,7 +58,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           password,
         });
         if (authError) throw authError;
-        router.replace("/account");
+        router.replace("/learn");
         router.refresh();
       } else if (mode === "forgot") {
         const { error: authError } = await supabase.auth.resetPasswordForEmail(
@@ -73,7 +73,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         });
         if (authError) throw authError;
         setMessage("Your password has been updated. You can now continue to your account.");
-        router.replace("/account");
+        router.replace("/learn");
         router.refresh();
       }
     } catch (caught) {
@@ -91,7 +91,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/account`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/learn`,
         },
       });
       if (authError) throw authError;
