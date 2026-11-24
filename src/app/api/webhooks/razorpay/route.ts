@@ -37,6 +37,7 @@ export async function POST(request: Request) {
 
   if (insertError) {
     if (insertError.code !== "23505") {
+      console.error("Order insert failed:", insertError?.message, insertError?.code);
       return NextResponse.json({ error: "Could not store event" }, { status: 500 });
     }
     const { data: existing } = await admin

@@ -82,8 +82,7 @@ export default async function CoursePage({
           <Lock size={32} aria-hidden />
           <h2 className="section-title">No lectures available to you yet</h2>
           <p>
-            Lectures may still be in preparation, or this course may require
-            access that is not active on your account.
+            This course may require access that is not active on your account.
           </p>
 
           <Link href="/checkout" className="primary-button" style={{ marginTop: "0.75rem" }}>

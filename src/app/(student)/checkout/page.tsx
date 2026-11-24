@@ -51,7 +51,7 @@ export default async function CheckoutPage() {
       )}
       <p className="page-title" style={{ margin: "1.25rem 0" }}>{price}</p>
       <ul className="muted-copy" style={{ paddingLeft: "1.1rem", marginBottom: "1.25rem", lineHeight: 1.7 }}>
-        <li>Pay once. No subscription and no renewal.</li>
+        <li>Pay once.</li>
         <li>Access to the entire platform, forever.</li>
       </ul>
       <CheckoutButton />
