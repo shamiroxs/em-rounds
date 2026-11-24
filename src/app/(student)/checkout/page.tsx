@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { CheckoutButton } from "@/components/payments/checkout-button";
+import { BackButton } from "@/components/back-button";
 
 export default async function CheckoutPage() {
   const { supabase } = await requireUser();
@@ -43,6 +44,9 @@ export default async function CheckoutPage() {
   }).format(Number(product.amount_minor) / 100);
 
   return (
+    <>
+        <BackButton fallbackHref="/learn" />
+    
     <div className="surface-card" style={{ maxWidth: "30rem", margin: "0 auto" }}>
       <p className="eyebrow">One-time payment</p>
       <h1 className="page-title" style={{ marginTop: "0.5rem" }}>{product.name}</h1>
@@ -56,5 +60,7 @@ export default async function CheckoutPage() {
       </ul>
       <CheckoutButton />
     </div>
+
+    </>
   );
 }

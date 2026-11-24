@@ -42,7 +42,6 @@ export default async function LearnPage() {
               </div>
               <h2 className="section-title" style={{ fontSize: "1.1rem" }}>
                 {c.title}
-                {!unlocked.has(c.id) && <span className="badge">Locked</span>}
               </h2>
               {c.description && (
                 <p className="muted-copy" style={{ fontSize: "0.9rem" }}>
