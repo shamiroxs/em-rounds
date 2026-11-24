@@ -3,8 +3,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { processWebhookEvent, sanitizeEvent } from "@/lib/payments/process";
 import { verifyWebhookSignature } from "@/lib/payments/razorpay";
 
-export const runtime = "nodejs";
-
 export async function POST(request: Request) {
   // Read the exact raw body. It must not be parsed before verification.
   const rawBody = await request.text();
