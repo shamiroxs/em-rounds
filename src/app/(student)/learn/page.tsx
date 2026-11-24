@@ -11,6 +11,15 @@ export default async function LearnPage() {
     .order("sort_order")
     .order("title");
 
+  const accessList = await Promise.all(
+    (courses ?? []).map((c) =>
+      supabase.rpc("can_read_course", { target_course_id: c.id }),
+    ),
+  );
+  const unlocked = new Set(
+    (courses ?? []).filter((_, i) => accessList[i].data === true).map((c) => c.id),
+  );
+
   if (error) throw new Error("Could not load courses.");
 
   return (
@@ -33,6 +42,7 @@ export default async function LearnPage() {
               </div>
               <h2 className="section-title" style={{ fontSize: "1.1rem" }}>
                 {c.title}
+                {!unlocked.has(c.id) && <span className="badge">Locked</span>}
               </h2>
               {c.description && (
                 <p className="muted-copy" style={{ fontSize: "0.9rem" }}>

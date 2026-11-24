@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ChevronLeft, ExternalLink, FileText, VideoOff } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -40,7 +40,31 @@ export default async function LecturePage({
     .eq("id", lectureId)
     .maybeSingle();
 
-  if (!data) notFound();
+    if (!data) {
+    // RLS hid it. Published but locked → checkout. Anything else → 404.
+    const admin = createAdminClient();
+    if (admin) {
+      const { data: row } = await admin
+        .from("lectures")
+        .select("status, topics ( status, subjects ( status, courses ( slug, status ) ) )")
+        .eq("id", lectureId)
+        .maybeSingle();
+      const topic = row?.topics as unknown as {
+        status: string;
+        subjects: { status: string; courses: { slug: string; status: string } };
+      } | null;
+      if (
+        row?.status === "published" &&
+        topic?.status === "published" &&
+        topic.subjects.status === "published" &&
+        topic.subjects.courses.status === "published"
+      ) {
+        redirect(`/checkout?next=${encodeURIComponent(`/learn/${topic.subjects.courses.slug}`)}`);
+      }
+    }
+    notFound();
+  }
+
   const lecture = data as unknown as LectureRow;
 
   const [objectivesRes, resourcesRes, progressRes, bookmarkRes] = await Promise.all([
