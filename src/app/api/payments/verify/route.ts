@@ -9,8 +9,6 @@ import {
 } from "@/lib/payments/process";
 import { fetchRazorpayPayment, verifyCheckoutSignature } from "@/lib/payments/razorpay";
 
-export const runtime = "nodejs";
-
 export async function POST(request: Request) {
   const user = await getAuthedUser();
   if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });

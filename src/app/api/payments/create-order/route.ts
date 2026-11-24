@@ -4,8 +4,6 @@ import { getAuthedUser } from "@/lib/payments/server";
 import { PRODUCT_CODE } from "@/lib/payments/process";
 import { createRazorpayOrder, getRazorpayKeyId } from "@/lib/payments/razorpay";
 
-export const runtime = "nodejs";
-
 export async function POST() {
   const user = await getAuthedUser();
   if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
