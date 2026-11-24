@@ -85,6 +85,10 @@ export default async function CoursePage({
             Lectures may still be in preparation, or this course may require
             access that is not active on your account.
           </p>
+
+          <Link href="/checkout" className="primary-button" style={{ marginTop: "0.75rem" }}>
+            Get lifetime access
+          </Link>
         </div>
       )}
 
