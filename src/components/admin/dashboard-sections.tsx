@@ -38,11 +38,7 @@ export async function DashboardStatsSection({ supabase }: { supabase: SupabaseCl
       )}
       <div className="admin-stat-grid">
         <StatCard label="Courses" value={s.courses} />
-        <StatCard label="Published courses" value={s.publishedCourses} />
-        <StatCard label="Subjects" value={s.subjects} />
-        <StatCard label="Topics" value={s.topics} />
         <StatCard label="Lectures" value={s.lectures} />
-        <StatCard label="Published lectures" value={s.publishedLectures} />
         <StatCard
           label="Registered students"
           value={s.students}
