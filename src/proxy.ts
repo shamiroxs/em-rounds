@@ -43,6 +43,15 @@ export async function proxy(request: NextRequest) {
     return redirect;
   }
 
+  // Signed-out visitors never reach the administration area. This is only an
+  // early, friendly redirect. The real role check happens on the server in
+  // every admin page and server action.
+  if (request.nextUrl.pathname.startsWith("/admin") && !data?.claims?.sub) {
+    const redirect = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
+  }
+
   return response;
 }
 

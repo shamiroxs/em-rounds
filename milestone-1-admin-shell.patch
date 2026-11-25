@@ -1,0 +1,1004 @@
+diff --git a/src/app/account/page.tsx b/src/app/account/page.tsx
+index 7486c86..263fc26 100644
+--- a/src/app/account/page.tsx
++++ b/src/app/account/page.tsx
+@@ -111,7 +111,7 @@ export default async function AccountPage() {
+           <Link href="/learn" className="primary-button">Browse courses</Link>
+           <Link href="/my-learning" className="secondary-button">My Learning</Link>
+         </div>
+-        {isAdmin && <Link href="/admin" className="admin-link mt-6">Open administration</Link>}
++        {(isAdmin || isEditor) && <Link href="/admin" className="admin-link mt-6">Open administration</Link>}
+       </section>
+     </main>
+   );
+diff --git a/src/app/admin/error.tsx b/src/app/admin/error.tsx
+new file mode 100644
+index 0000000..e809bee
+--- /dev/null
++++ b/src/app/admin/error.tsx
+@@ -0,0 +1,11 @@
++"use client";
++
++export default function AdminError({ reset }: { error: Error; reset: () => void }) {
++  return (
++    <div className="admin-empty" role="alert">
++      <h1 className="section-title" style={{ fontSize: "1.2rem" }}>Something went wrong</h1>
++      <p className="muted-copy">This administration page could not be loaded. Please try again.</p>
++      <button type="button" className="primary-button" onClick={reset}>Try again</button>
++    </div>
++  );
++}
+diff --git a/src/app/admin/layout.tsx b/src/app/admin/layout.tsx
+new file mode 100644
+index 0000000..50c59ca
+--- /dev/null
++++ b/src/app/admin/layout.tsx
+@@ -0,0 +1,51 @@
++import { Suspense } from "react";
++import { Toaster } from "sonner";
++import { requireStaff, ROLE_LABEL } from "@/lib/admin/access";
++import { AdminShell } from "@/components/admin/admin-shell";
++import { ADMIN_NAV } from "@/components/admin/nav-config";
++import { AdminSkeleton } from "@/components/admin/ui";
++
++export const instant = false;
++
++// Reads the session inside <Suspense> (required by Cache Components), checks
++// the role on the server, and only then renders the administration shell.
++//
++// IMPORTANT: a layout is NOT a security boundary on its own. Every admin page
++// and every server action ALSO checks the role itself.
++async function AdminGate({ children }: { children: React.ReactNode }) {
++  const staff = await requireStaff();
++  // Hiding links is only a convenience. Pages and actions enforce access.
++  const items = ADMIN_NAV.filter(
++    (item) => item.capability === null || staff.can(item.capability),
++  );
++  return (
++    <AdminShell
++      items={items}
++      roleLabel={ROLE_LABEL[staff.role]}
++      email={staff.email}
++    >
++      {children}
++    </AdminShell>
++  );
++}
++
++export default function AdminLayout({
++  children,
++}: Readonly<{ children: React.ReactNode }>) {
++  return (
++    <>
++      <Suspense
++        fallback={
++          <div className="app-shell">
++            <div className="admin-content">
++              <AdminSkeleton />
++            </div>
++          </div>
++        }
++      >
++        <AdminGate>{children}</AdminGate>
++      </Suspense>
++      <Toaster richColors position="top-center" />
++    </>
++  );
++}
+diff --git a/src/app/admin/loading.tsx b/src/app/admin/loading.tsx
+new file mode 100644
+index 0000000..8c0700c
+--- /dev/null
++++ b/src/app/admin/loading.tsx
+@@ -0,0 +1,5 @@
++import { AdminSkeleton } from "@/components/admin/ui";
++
++export default function AdminLoading() {
++  return <AdminSkeleton />;
++}
+diff --git a/src/app/admin/page.tsx b/src/app/admin/page.tsx
+index 03e3a79..8430c9e 100644
+--- a/src/app/admin/page.tsx
++++ b/src/app/admin/page.tsx
+@@ -1,23 +1,24 @@
+-import Link from "next/link";
+-import { requireAdmin } from "@/lib/auth";
+-import { SignOutButton } from "@/components/auth/sign-out-button";
++import { requireStaff, ROLE_LABEL } from "@/lib/admin/access";
++import { PageHeader } from "@/components/admin/ui";
+ 
+ export const instant = false;
+ 
+-export default async function AdminPage() {
+-  await requireAdmin();
++export default async function AdminHomePage() {
++  // Every page checks access itself; the layout alone is not enough.
++  const staff = await requireStaff();
+ 
+   return (
+-    <main className="app-shell">
+-      <header className="site-header mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
+-        <Link href="/account" className="brand">EM ROUNDS <span className="brand-accent">with PK</span></Link>
+-        <SignOutButton />
+-      </header>
+-      <section className="mx-auto max-w-5xl px-5 py-10">
+-        <p className="eyebrow">Restricted area</p>
+-        <h1 className="section-title mt-3 text-3xl">Administration</h1>
+-        <p className="muted-copy mt-4 max-w-2xl text-sm leading-7">Your database-verified administrator access is confirmed. Administrative tools have not been added in this authentication phase.</p>
+-      </section>
+-    </main>
++    <>
++      <PageHeader
++        title="Administration"
++        description={`Signed in as ${ROLE_LABEL[staff.role]}. Content tools will appear in the sidebar as each module is added.`}
++      />
++      <div className="admin-empty" role="status">
++        <p className="admin-empty-title">The administration shell is ready.</p>
++        <p className="muted-copy">
++          Dashboard statistics and content management are added in the next milestones.
++        </p>
++      </div>
++    </>
+   );
+ }
+diff --git a/src/app/globals.css b/src/app/globals.css
+index a56fcda..c604f84 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -764,4 +764,255 @@ input:focus-visible {
+ @keyframes breathe {
+   0%, 100% { transform: scale(0.7); }
+   50% { transform: scale(1.15); }
+-}
+\ No newline at end of file
++}
++
++/* =====================================================================
++   Administration area (all classes are prefixed "admin-").
++   Uses only the existing design tokens, so light/dark themes just work.
++   ===================================================================== */
++
++.admin-root { display: block; }
++
++.admin-icon-btn {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  width: 2.75rem;
++  height: 2.75rem;
++  border: 1px solid var(--border);
++  border-radius: 0.7rem;
++  background: var(--surface);
++  color: var(--text);
++  cursor: pointer;
++}
++.admin-icon-btn:hover { border-color: var(--accent); background: var(--surface-soft); }
++
++/* Mobile top bar */
++.admin-topbar {
++  position: sticky;
++  top: 0;
++  z-index: 20;
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 0.75rem;
++  padding: 0.6rem 1rem;
++  padding-top: calc(0.6rem + env(safe-area-inset-top));
++  border-bottom: 1px solid var(--border);
++  background: var(--page);
++}
++.admin-desktop-bar { display: none; }
++
++/* Sidebar: slide-in drawer on mobile, fixed column on desktop */
++.admin-sidebar {
++  position: fixed;
++  top: 0;
++  bottom: 0;
++  left: 0;
++  z-index: 50;
++  display: flex;
++  flex-direction: column;
++  gap: 1rem;
++  width: min(18rem, 86vw);
++  overflow-y: auto;
++  border-right: 1px solid var(--border);
++  background: var(--surface);
++  padding: 1.1rem 0.9rem;
++  padding-top: calc(1.1rem + env(safe-area-inset-top));
++  padding-bottom: calc(1.1rem + env(safe-area-inset-bottom));
++  transform: translateX(-100%);
++  visibility: hidden;
++  transition: transform 200ms ease, visibility 200ms;
++}
++.admin-sidebar[data-open="true"] { transform: none; visibility: visible; }
++.admin-backdrop {
++  position: fixed;
++  inset: 0;
++  z-index: 40;
++  background: rgb(0 0 0 / 45%);
++}
++.admin-drawer-close { position: absolute; top: 0.7rem; right: 0.7rem; }
++
++.admin-brand-row { padding: 0 0.4rem; }
++.admin-eyebrow {
++  margin: 0.25rem 0 0;
++  color: var(--subtle);
++  font-size: 0.7rem;
++  font-weight: 700;
++  letter-spacing: 0.18em;
++  text-transform: uppercase;
++}
++.admin-nav { display: flex; flex-direction: column; gap: 0.2rem; }
++.admin-nav-link {
++  display: flex;
++  align-items: center;
++  gap: 0.65rem;
++  border-radius: 0.65rem;
++  padding: 0.65rem 0.8rem;
++  color: var(--muted);
++  font-size: 0.92rem;
++  font-weight: 600;
++  text-decoration: none;
++}
++a.admin-nav-link:hover { background: var(--surface-soft); color: var(--text); }
++.admin-nav-link[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
++.admin-nav-link[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
++.admin-soon {
++  margin-left: auto;
++  border: 1px solid var(--border);
++  border-radius: 999px;
++  padding: 0.05rem 0.5rem;
++  font-size: 0.65rem;
++  font-weight: 700;
++  letter-spacing: 0.05em;
++  text-transform: uppercase;
++}
++.admin-sidebar-foot {
++  display: grid;
++  gap: 0.7rem;
++  margin-top: auto;
++  border-top: 1px solid var(--border);
++  padding-top: 1rem;
++}
++.admin-email {
++  margin: 0.45rem 0 0;
++  overflow: hidden;
++  color: var(--subtle);
++  font-size: 0.78rem;
++  text-overflow: ellipsis;
++  white-space: nowrap;
++}
++
++/* Page area */
++.admin-main { min-width: 0; }
++.admin-content {
++  width: 100%;
++  max-width: 76rem;
++  margin: 0 auto;
++  padding: 1.25rem 1rem 4rem;
++}
++.admin-page-header {
++  display: flex;
++  flex-wrap: wrap;
++  align-items: flex-start;
++  justify-content: space-between;
++  gap: 1rem;
++  margin-bottom: 1.5rem;
++}
++.admin-page-desc { margin: 0.4rem 0 0; max-width: 42rem; font-size: 0.92rem; line-height: 1.6; }
++.admin-page-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
++
++@media (min-width: 1024px) {
++  .admin-topbar, .admin-drawer-close, .admin-backdrop { display: none; }
++  .admin-sidebar {
++    width: 17rem;
++    transform: none;
++    visibility: visible;
++    z-index: 10;
++  }
++  .admin-main { margin-left: 17rem; }
++  .admin-desktop-bar { display: flex; justify-content: flex-end; padding: 0.9rem 1.5rem 0; }
++  .admin-content { padding: 1rem 1.5rem 4rem; }
++}
++
++/* Dashboard cards, tables, states */
++.admin-stat-grid {
++  display: grid;
++  gap: 0.9rem;
++  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
++}
++.admin-stat {
++  border: 1px solid var(--border);
++  border-radius: 1rem;
++  background: var(--surface);
++  padding: 1.1rem 1.2rem;
++}
++.admin-stat-label { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 600; }
++.admin-stat-value { margin: 0.35rem 0 0; color: var(--text); font-size: 1.9rem; font-weight: 750; letter-spacing: -0.03em; }
++.admin-stat-sub { margin: 0.2rem 0 0; color: var(--subtle); font-size: 0.78rem; }
++
++.admin-table-wrap {
++  overflow-x: auto;
++  border: 1px solid var(--border);
++  border-radius: 1rem;
++  background: var(--surface);
++}
++.admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
++.admin-table th {
++  border-bottom: 1px solid var(--border);
++  padding: 0.75rem 1rem;
++  color: var(--muted);
++  font-size: 0.75rem;
++  font-weight: 700;
++  letter-spacing: 0.06em;
++  text-align: left;
++  text-transform: uppercase;
++  white-space: nowrap;
++}
++.admin-table td { border-bottom: 1px solid var(--border); padding: 0.8rem 1rem; vertical-align: middle; }
++.admin-table tr:last-child td { border-bottom: 0; }
++
++.admin-empty {
++  display: grid;
++  justify-items: center;
++  gap: 0.5rem;
++  border: 1px dashed var(--border);
++  border-radius: 1rem;
++  background: var(--surface);
++  padding: 2.5rem 1rem;
++  text-align: center;
++}
++.admin-empty-title { margin: 0; color: var(--text); font-weight: 700; }
++
++.admin-badge {
++  display: inline-flex;
++  border: 1px solid var(--border);
++  border-radius: 999px;
++  background: var(--surface-soft);
++  color: var(--muted);
++  padding: 0.12rem 0.65rem;
++  font-size: 0.75rem;
++  font-weight: 650;
++  text-transform: capitalize;
++  white-space: nowrap;
++}
++.admin-badge--ok { border-color: var(--success-border); background: var(--success-bg); color: var(--success-text); }
++.admin-badge--bad { border-color: var(--danger-border); background: var(--danger-bg); color: var(--danger-text); }
++.admin-badge--warn { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
++.admin-badge--muted { opacity: 0.75; }
++
++.admin-section { margin-top: 2rem; }
++.admin-section-title { margin: 0 0 0.8rem; font-size: 1.05rem; }
++.admin-link-card {
++  display: block;
++  border: 1px solid var(--border);
++  border-radius: 1rem;
++  background: var(--surface);
++  padding: 1.1rem 1.2rem;
++  color: var(--text);
++  text-decoration: none;
++}
++a.admin-link-card:hover { border-color: var(--accent); }
++
++/* Forms (reuse .field-input / .field-label from the student app) */
++textarea.field-input { min-height: 6rem; resize: vertical; }
++select.field-input { appearance: auto; }
++textarea:focus-visible, select:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
++.admin-form-grid { display: grid; gap: 1.1rem; }
++.admin-form-row { display: grid; gap: 1.1rem; }
++@media (min-width: 640px) { .admin-form-row { grid-template-columns: 1fr 1fr; } }
++
++/* Confirmation dialog */
++.admin-dialog {
++  width: min(28rem, 92vw);
++  border: 1px solid var(--border);
++  border-radius: 1rem;
++  background: var(--surface-raised);
++  color: var(--text);
++  padding: 1.4rem;
++}
++.admin-dialog::backdrop { background: rgb(0 0 0 / 50%); }
++.admin-dialog-body { margin: 0.7rem 0 0; font-size: 0.92rem; line-height: 1.6; }
++.admin-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.6rem; margin-top: 1.2rem; }
++.primary-button.admin-danger { border-color: var(--danger-text); background: var(--danger-text); color: var(--page); }
++.primary-button.admin-danger:hover { opacity: 0.9; }
+diff --git a/src/components/admin/admin-shell.tsx b/src/components/admin/admin-shell.tsx
+new file mode 100644
+index 0000000..7f164d1
+--- /dev/null
++++ b/src/components/admin/admin-shell.tsx
+@@ -0,0 +1,172 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import Link from "next/link";
++import { usePathname } from "next/navigation";
++import {
++  BookOpen,
++  ClipboardList,
++  GraduationCap,
++  History,
++  LayoutDashboard,
++  Megaphone,
++  Menu,
++  Users,
++  Video,
++  X,
++} from "lucide-react";
++import { ThemeToggle } from "@/components/theme-toggle";
++import { SignOutButton } from "@/components/auth/sign-out-button";
++import type { AdminIconKey, AdminNavItem } from "./nav-config";
++
++const ICONS: Record<AdminIconKey, typeof BookOpen> = {
++  overview: LayoutDashboard,
++  courses: BookOpen,
++  lectures: Video,
++  questions: ClipboardList,
++  announcements: Megaphone,
++  users: Users,
++  audit: History,
++};
++
++function isActive(pathname: string, href: string) {
++  if (href === "/admin") return pathname === "/admin";
++  return pathname === href || pathname.startsWith(href + "/");
++}
++
++function NavList({
++  items,
++  pathname,
++}: {
++  items: AdminNavItem[];
++  pathname: string;
++}) {
++  return (
++    <nav className="admin-nav" aria-label="Administration">
++      {items.map(({ href, label, icon, available }) => {
++        const Icon = ICONS[icon];
++        if (!available) {
++          return (
++            <span key={href} className="admin-nav-link" aria-disabled="true">
++              <Icon size={18} aria-hidden />
++              {label}
++              <span className="admin-soon">Soon</span>
++            </span>
++          );
++        }
++        return (
++          <Link
++            key={href}
++            href={href}
++            className="admin-nav-link"
++            aria-current={isActive(pathname, href) ? "page" : undefined}
++          >
++            <Icon size={18} aria-hidden />
++            {label}
++          </Link>
++        );
++      })}
++    </nav>
++  );
++}
++
++export function AdminShell({
++  items,
++  roleLabel,
++  email,
++  children,
++}: {
++  items: AdminNavItem[];
++  roleLabel: string;
++  email: string | null;
++  children: React.ReactNode;
++}) {
++  const pathname = usePathname();
++  // The drawer is "open" only for the page it was opened on, so it closes by
++  // itself after navigating. No effect is needed for that.
++  const [openPath, setOpenPath] = useState<string | null>(null);
++  const drawerOpen = openPath === pathname;
++
++  useEffect(() => {
++    if (!drawerOpen) return;
++    const onKey = (e: KeyboardEvent) => {
++      if (e.key === "Escape") setOpenPath(null);
++    };
++    window.addEventListener("keydown", onKey);
++    return () => window.removeEventListener("keydown", onKey);
++  }, [drawerOpen]);
++
++  const sidebar = (
++    <>
++      <div className="admin-brand-row">
++        <Link href="/admin" className="brand">
++          EM ROUNDS <span className="brand-accent">with PK</span>
++        </Link>
++        <p className="admin-eyebrow">Administration</p>
++      </div>
++      <NavList items={items} pathname={pathname} />
++      <div className="admin-sidebar-foot">
++        <div>
++          <span className="role-pill">{roleLabel}</span>
++          {email && <p className="admin-email" title={email}>{email}</p>}
++        </div>
++        <Link href="/learn" className="admin-nav-link">
++          <GraduationCap size={18} aria-hidden /> Student view
++        </Link>
++        <SignOutButton />
++      </div>
++    </>
++  );
++
++  return (
++    <div className="app-shell admin-root">
++      <header className="admin-topbar">
++        <button
++          type="button"
++          className="admin-icon-btn"
++          aria-label="Open navigation menu"
++          aria-expanded={drawerOpen}
++          aria-controls="admin-drawer"
++          onClick={() => setOpenPath(pathname)}
++        >
++          <Menu size={24} aria-hidden />
++        </button>
++        <Link href="/admin" className="brand">
++          EM ROUNDS <span className="brand-accent">Admin</span>
++        </Link>
++        <ThemeToggle />
++      </header>
++
++      {drawerOpen && (
++        <div
++          className="admin-backdrop"
++          onClick={() => setOpenPath(null)}
++          aria-hidden="true"
++        />
++      )}
++      <aside
++        id="admin-drawer"
++        className="admin-sidebar"
++        data-open={drawerOpen ? "true" : "false"}
++        aria-label="Administration sidebar"
++      >
++        <button
++          type="button"
++          className="admin-icon-btn admin-drawer-close"
++          aria-label="Close navigation menu"
++          onClick={() => setOpenPath(null)}
++        >
++          <X size={22} aria-hidden />
++        </button>
++        {sidebar}
++      </aside>
++
++      <div className="admin-main">
++        <div className="admin-desktop-bar">
++          <ThemeToggle />
++        </div>
++        <main className="admin-content">{children}</main>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/admin/confirm-dialog.tsx b/src/components/admin/confirm-dialog.tsx
+new file mode 100644
+index 0000000..2696ca2
+--- /dev/null
++++ b/src/components/admin/confirm-dialog.tsx
+@@ -0,0 +1,67 @@
++"use client";
++
++import { useEffect, useRef } from "react";
++
++/**
++ * Accessible confirmation dialog built on the native <dialog> element
++ * (focus trapping and Escape handling come from the browser).
++ * Use it before every destructive or publishing action.
++ */
++export function ConfirmDialog({
++  open,
++  title,
++  description,
++  confirmLabel = "Confirm",
++  destructive = false,
++  busy = false,
++  onConfirm,
++  onCancel,
++}: {
++  open: boolean;
++  title: string;
++  description: React.ReactNode;
++  confirmLabel?: string;
++  destructive?: boolean;
++  busy?: boolean;
++  onConfirm: () => void;
++  onCancel: () => void;
++}) {
++  const ref = useRef<HTMLDialogElement>(null);
++
++  useEffect(() => {
++    const dialog = ref.current;
++    if (!dialog) return;
++    if (open && !dialog.open) dialog.showModal();
++    if (!open && dialog.open) dialog.close();
++  }, [open]);
++
++  return (
++    <dialog
++      ref={ref}
++      className="admin-dialog"
++      aria-labelledby="confirm-title"
++      onCancel={(e) => {
++        e.preventDefault();
++        if (!busy) onCancel();
++      }}
++    >
++      <h2 id="confirm-title" className="section-title" style={{ fontSize: "1.15rem" }}>
++        {title}
++      </h2>
++      <div className="muted-copy admin-dialog-body">{description}</div>
++      <div className="admin-dialog-actions">
++        <button type="button" className="secondary-button" onClick={onCancel} disabled={busy}>
++          Cancel
++        </button>
++        <button
++          type="button"
++          className={destructive ? "primary-button admin-danger" : "primary-button"}
++          onClick={onConfirm}
++          disabled={busy}
++        >
++          {busy ? "Working…" : confirmLabel}
++        </button>
++      </div>
++    </dialog>
++  );
++}
+diff --git a/src/components/admin/nav-config.ts b/src/components/admin/nav-config.ts
+new file mode 100644
+index 0000000..12162cb
+--- /dev/null
++++ b/src/components/admin/nav-config.ts
+@@ -0,0 +1,30 @@
++import type { Capability } from "@/lib/admin/access";
++
++export type AdminIconKey =
++  | "overview"
++  | "courses"
++  | "lectures"
++  | "questions"
++  | "announcements"
++  | "users"
++  | "audit";
++
++export type AdminNavItem = {
++  href: string;
++  label: string;
++  icon: AdminIconKey;
++  /** Who may see this link. The page itself ALSO enforces this on the server. */
++  capability: Capability | null;
++  /** false = module not built yet; the link is shown as "Soon" and disabled. */
++  available: boolean;
++};
++
++export const ADMIN_NAV: AdminNavItem[] = [
++  { href: "/admin", label: "Overview", icon: "overview", capability: null, available: true },
++  { href: "/admin/courses", label: "Courses", icon: "courses", capability: "content.edit", available: false },
++  { href: "/admin/lectures", label: "Lectures", icon: "lectures", capability: "content.edit", available: false },
++  { href: "/admin/questions", label: "Questions", icon: "questions", capability: "content.edit", available: false },
++  { href: "/admin/announcements", label: "Announcements", icon: "announcements", capability: "announcements.manage", available: false },
++  { href: "/admin/users", label: "Users", icon: "users", capability: "users.view", available: false },
++  { href: "/admin/audit-log", label: "Audit log", icon: "audit", capability: "audit.view", available: false },
++];
+diff --git a/src/components/admin/ui.tsx b/src/components/admin/ui.tsx
+new file mode 100644
+index 0000000..99b88ef
+--- /dev/null
++++ b/src/components/admin/ui.tsx
+@@ -0,0 +1,72 @@
++import type { ReactNode } from "react";
++
++export function PageHeader({
++  title,
++  description,
++  actions,
++}: {
++  title: string;
++  description?: string;
++  actions?: ReactNode;
++}) {
++  return (
++    <div className="admin-page-header">
++      <div>
++        <h1 className="page-title">{title}</h1>
++        {description && <p className="muted-copy admin-page-desc">{description}</p>}
++      </div>
++      {actions && <div className="admin-page-actions">{actions}</div>}
++    </div>
++  );
++}
++
++export function EmptyState({
++  title,
++  description,
++  action,
++}: {
++  title: string;
++  description?: string;
++  action?: ReactNode;
++}) {
++  return (
++    <div className="admin-empty" role="status">
++      <p className="admin-empty-title">{title}</p>
++      {description && <p className="muted-copy">{description}</p>}
++      {action}
++    </div>
++  );
++}
++
++const BADGE_CLASS: Record<string, string> = {
++  published: "admin-badge admin-badge--ok",
++  ready: "admin-badge admin-badge--ok",
++  draft: "admin-badge",
++  archived: "admin-badge admin-badge--muted",
++  retired: "admin-badge admin-badge--muted",
++  processing: "admin-badge admin-badge--warn",
++  waiting: "admin-badge admin-badge--warn",
++  error: "admin-badge admin-badge--bad",
++};
++
++export function StatusBadge({ status }: { status: string }) {
++  return (
++    <span className={BADGE_CLASS[status] ?? "admin-badge"}>
++      {status.replace(/_/g, " ")}
++    </span>
++  );
++}
++
++export function AdminSkeleton() {
++  return (
++    <div aria-busy="true" aria-label="Loading">
++      <div className="skeleton" style={{ height: "2rem", width: "40%" }} />
++      <div className="skeleton" style={{ height: "1rem", width: "60%", marginTop: "0.75rem" }} />
++      <div className="admin-stat-grid" style={{ marginTop: "1.5rem" }}>
++        {[0, 1, 2, 3].map((i) => (
++          <div key={i} className="skeleton" style={{ height: "6rem" }} />
++        ))}
++      </div>
++    </div>
++  );
++}
+diff --git a/src/lib/admin/access.ts b/src/lib/admin/access.ts
+new file mode 100644
+index 0000000..1f31a82
+--- /dev/null
++++ b/src/lib/admin/access.ts
+@@ -0,0 +1,142 @@
++import { cache } from "react";
++import { redirect } from "next/navigation";
++import type { SupabaseClient } from "@supabase/supabase-js";
++import { createClient } from "@/lib/supabase/server";
++
++// Roles that may use the administration area. These mirror the existing
++// database roles (public.roles); no new role system is created here.
++export type StaffRole = "owner_admin" | "admin" | "content_editor";
++
++export type Capability =
++  | "content.edit" // create/edit DRAFT educational content (editors + admins)
++  | "content.publish" // publish, unpublish, archive (admins only)
++  | "content.delete" // delete empty draft records (admins only)
++  | "dashboard.view"
++  | "announcements.manage"
++  | "users.view"
++  | "audit.view"
++  | "roles.manage"; // owner_admin only, also enforced by RLS
++
++const CAPABILITIES: Record<StaffRole, ReadonlySet<Capability>> = {
++  content_editor: new Set<Capability>(["content.edit"]),
++  admin: new Set<Capability>([
++    "content.edit",
++    "content.publish",
++    "content.delete",
++    "dashboard.view",
++    "announcements.manage",
++    "users.view",
++    "audit.view",
++  ]),
++  owner_admin: new Set<Capability>([
++    "content.edit",
++    "content.publish",
++    "content.delete",
++    "dashboard.view",
++    "announcements.manage",
++    "users.view",
++    "audit.view",
++    "roles.manage",
++  ]),
++};
++
++export function roleCan(role: StaffRole, capability: Capability) {
++  return CAPABILITIES[role].has(capability);
++}
++
++export const ROLE_LABEL: Record<StaffRole, string> = {
++  owner_admin: "Owner admin",
++  admin: "Administrator",
++  content_editor: "Content editor",
++};
++
++export type StaffContext = {
++  supabase: SupabaseClient;
++  userId: string;
++  email: string | null;
++  role: StaffRole;
++  can: (capability: Capability) => boolean;
++};
++
++/**
++ * Returns the signed-in staff member, or null. Never redirects, so server
++ * actions can return a clean error. It FAILS CLOSED: any database error,
++ * missing session, or student account returns null.
++ *
++ * The role is read from the database through the existing helper functions
++ * (has_role / is_admin), under the user's own session. Nothing here trusts
++ * the browser.
++ */
++export const getStaff = cache(async (): Promise<StaffContext | null> => {
++  const supabase = await createClient();
++  const { data, error } = await supabase.auth.getClaims();
++  const claims = data?.claims;
++  const userId = claims?.sub;
++  if (error || typeof userId !== "string" || !userId || !claims) return null;
++
++  const [owner, admin, editor] = await Promise.all([
++    supabase.rpc("has_role", { required_role: "owner_admin" }),
++    supabase.rpc("is_admin"),
++    supabase.rpc("has_role", { required_role: "content_editor" }),
++  ]);
++  if (owner.error || admin.error || editor.error) return null;
++
++  const role: StaffRole | null =
++    owner.data === true
++      ? "owner_admin"
++      : admin.data === true
++        ? "admin"
++        : editor.data === true
++          ? "content_editor"
++          : null;
++  if (!role) return null;
++
++  return {
++    supabase,
++    userId,
++    email: typeof claims.email === "string" ? claims.email : null,
++    role,
++    can: (capability) => roleCan(role, capability),
++  };
++});
++
++/** For pages: unauthenticated -> /login, signed-in non-staff -> /account. */
++export async function requireStaff(): Promise<StaffContext> {
++  const staff = await getStaff();
++  if (staff) return staff;
++
++  // Tell "not signed in" apart from "signed in but not staff".
++  const supabase = await createClient();
++  const { data } = await supabase.auth.getClaims();
++  if (!data?.claims?.sub) redirect("/login");
++  redirect("/account?error=admin_access_required");
++}
++
++/** For pages that only administrators may open (not content editors). */
++export async function requireCapability(
++  capability: Capability,
++): Promise<StaffContext> {
++  const staff = await requireStaff();
++  if (!staff.can(capability)) redirect("/admin");
++  return staff;
++}
++
++export type ActionResult<T = undefined> =
++  | (T extends undefined ? { ok: true } : { ok: true; data: T })
++  | { ok: false; error: string };
++
++/**
++ * For server actions. Call this FIRST in every admin action:
++ *   const auth = await authorizeAction("content.publish");
++ *   if (!auth.ok) return auth;
++ */
++export async function authorizeAction(
++  capability: Capability,
++): Promise<{ ok: true; staff: StaffContext } | { ok: false; error: string }> {
++  const staff = await getStaff();
++  if (!staff) return { ok: false, error: "You are not authorized to do this." };
++  if (!staff.can(capability)) {
++    return { ok: false, error: "Your role does not allow this action." };
++  }
++  return { ok: true, staff };
++}
+diff --git a/src/lib/admin/audit.ts b/src/lib/admin/audit.ts
+new file mode 100644
+index 0000000..a87b8c5
+--- /dev/null
++++ b/src/lib/admin/audit.ts
+@@ -0,0 +1,60 @@
++import { createAdminClient } from "@/lib/supabase/admin";
++
++// Keys that must never be written to an audit record.
++const SENSITIVE_KEY = /pass(word)?|secret|token|api[_-]?key|private[_-]?key|authorization|cookie/i;
++
++function sanitize(value: unknown, depth = 0): unknown {
++  if (depth > 4) return "[truncated]";
++  if (Array.isArray(value)) return value.slice(0, 50).map((v) => sanitize(v, depth + 1));
++  if (value && typeof value === "object") {
++    const out: Record<string, unknown> = {};
++    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
++      out[k] = SENSITIVE_KEY.test(k) ? "[redacted]" : sanitize(v, depth + 1);
++    }
++    return out;
++  }
++  if (typeof value === "string" && value.length > 500) return value.slice(0, 500) + "…";
++  return value;
++}
++
++export type AuditEntry = {
++  actorUserId: string;
++  /** e.g. "course.create", "lecture.publish" */
++  action: string;
++  /** e.g. "course", "lecture" */
++  entityType: string;
++  entityId?: string | null;
++  /** Small summary of what changed. Never put secrets here. */
++  details?: Record<string, unknown>;
++};
++
++/**
++ * Appends one row to public.admin_audit_logs.
++ *
++ * Browser sessions have no INSERT permission on that table, so this uses the
++ * server-only service-role client. It is called only after the caller has
++ * already been authorized. The table is append-only (a database trigger blocks
++ * UPDATE and DELETE).
++ *
++ * Best effort: a logging failure is reported to the server log but does not
++ * undo the change that was already saved. Returns true when the row was written.
++ */
++export async function writeAuditLog(entry: AuditEntry): Promise<boolean> {
++  const admin = createAdminClient();
++  if (!admin) {
++    console.error("Audit log skipped: service role is not configured.");
++    return false;
++  }
++  const { error } = await admin.from("admin_audit_logs").insert({
++    actor_user_id: entry.actorUserId,
++    action: entry.action,
++    entity_type: entry.entityType,
++    entity_id: entry.entityId ?? null,
++    details: sanitize(entry.details ?? {}),
++  });
++  if (error) {
++    console.error("Audit log write failed:", error.code, error.message);
++    return false;
++  }
++  return true;
++}
+diff --git a/src/proxy.ts b/src/proxy.ts
+index 58c4220..10b1cc1 100644
+--- a/src/proxy.ts
++++ b/src/proxy.ts
+@@ -43,6 +43,15 @@ export async function proxy(request: NextRequest) {
+     return redirect;
+   }
+ 
++  // Signed-out visitors never reach the administration area. This is only an
++  // early, friendly redirect. The real role check happens on the server in
++  // every admin page and server action.
++  if (request.nextUrl.pathname.startsWith("/admin") && !data?.claims?.sub) {
++    const redirect = NextResponse.redirect(new URL("/login", request.url));
++    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
++    return redirect;
++  }
++
+   return response;
+ }
+ 

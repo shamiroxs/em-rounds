@@ -111,7 +111,7 @@ export default async function AccountPage() {
           <Link href="/learn" className="primary-button">Browse courses</Link>
           <Link href="/my-learning" className="secondary-button">My Learning</Link>
         </div>
-        {isAdmin && <Link href="/admin" className="admin-link mt-6">Open administration</Link>}
+        {(isAdmin || isEditor) && <Link href="/admin" className="admin-link mt-6">Open administration</Link>}
       </section>
     </main>
   );
