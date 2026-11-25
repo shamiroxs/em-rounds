@@ -66,7 +66,7 @@ export default async function AccountPage() {
         </div>
 
         <div className="surface-card mt-6">
-          <h2 className="section-title" style={{ fontSize: "1.1rem" }}>Access</h2>
+          <h2 className="section-title" style={{ fontSize: "1.1rem" }}>Premium</h2>
           {hasAccess === true ? (
             <p style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.6rem" }}>
               <CheckCircle2 size={20} aria-hidden style={{ color: "var(--success-text)" }} />
@@ -75,7 +75,7 @@ export default async function AccountPage() {
           ) : (
             <>
               <p style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.6rem" }}>
-                <Lock size={20} aria-hidden /> You do not have access yet.
+                <Lock size={20} aria-hidden /> Get your premium now.
               </p>
               {price && (
                 <p className="muted-copy" style={{ marginTop: "0.4rem" }}>
@@ -94,7 +94,7 @@ export default async function AccountPage() {
               <h3 style={{ fontWeight: 700, fontSize: "0.95rem" }}>Payment history</h3>
               {history.map((o) => (
                 <p key={o.id} className="muted-copy" style={{ fontSize: "0.85rem", marginTop: "0.3rem" }}>
-                  {new Date(o.paid_at ?? o.created_at).toLocaleDateString("en-IN")} ·{" "}
+                  
                   {new Intl.NumberFormat("en-IN", {
                     style: "currency",
                     currency: String(o.currency).trim(),
