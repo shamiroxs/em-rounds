@@ -94,7 +94,7 @@ export default async function AccountPage() {
               <h3 style={{ fontWeight: 700, fontSize: "0.95rem" }}>Payment history</h3>
               {history.map((o) => (
                 <p key={o.id} className="muted-copy" style={{ fontSize: "0.85rem", marginTop: "0.3rem" }}>
-                  
+                  {new Date(o.paid_at ?? o.created_at).toLocaleDateString("en-IN")} ·{" "}
                   {new Intl.NumberFormat("en-IN", {
                     style: "currency",
                     currency: String(o.currency).trim(),
