@@ -21,7 +21,7 @@ export type AdminNavItem = {
 
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin", label: "Overview", icon: "overview", capability: null, available: true },
-  { href: "/admin/courses", label: "Courses", icon: "courses", capability: "content.edit", available: false },
+  { href: "/admin/courses", label: "Courses", icon: "courses", capability: "content.edit", available: true },
   { href: "/admin/lectures", label: "Lectures", icon: "lectures", capability: "content.edit", available: false },
   { href: "/admin/questions", label: "Questions", icon: "questions", capability: "content.edit", available: false },
   { href: "/admin/announcements", label: "Announcements", icon: "announcements", capability: "announcements.manage", available: false },
