@@ -1,24 +1,65 @@
+import { Suspense } from "react";
 import { requireStaff, ROLE_LABEL } from "@/lib/admin/access";
 import { PageHeader } from "@/components/admin/ui";
+import {
+  DashboardStatsSection,
+  RecentActivitySection,
+} from "@/components/admin/dashboard-sections";
 
 export const instant = false;
+
+function StatsSkeleton() {
+  return (
+    <div className="admin-stat-grid" aria-busy="true" aria-label="Loading statistics">
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+        <div key={i} className="skeleton" style={{ height: "6.5rem" }} />
+      ))}
+    </div>
+  );
+}
+
+function ActivitySkeleton() {
+  return <div className="skeleton" style={{ height: "10rem" }} aria-busy="true" aria-label="Loading activity" />;
+}
 
 export default async function AdminHomePage() {
   // Every page checks access itself; the layout alone is not enough.
   const staff = await requireStaff();
 
+  // Content editors do not get platform statistics or activity logs.
+  if (!staff.can("dashboard.view")) {
+    return (
+      <>
+        <PageHeader
+          title="Content workspace"
+          description={`Signed in as ${ROLE_LABEL[staff.role]}. You can prepare draft content. An administrator publishes it.`}
+        />
+        <div className="admin-empty" role="status">
+          <p className="admin-empty-title">Your content tools appear in the sidebar.</p>
+          <p className="muted-copy">Courses, lectures and questions are added module by module.</p>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <PageHeader
-        title="Administration"
-        description={`Signed in as ${ROLE_LABEL[staff.role]}. Content tools will appear in the sidebar as each module is added.`}
+        title="Overview"
+        description="Live figures from your platform database."
       />
-      <div className="admin-empty" role="status">
-        <p className="admin-empty-title">The administration shell is ready.</p>
-        <p className="muted-copy">
-          Dashboard statistics and content management are added in the next milestones.
-        </p>
-      </div>
+      <Suspense fallback={<StatsSkeleton />}>
+        <DashboardStatsSection supabase={staff.supabase} />
+      </Suspense>
+
+      <section className="admin-section" aria-labelledby="recent-activity">
+        <h2 id="recent-activity" className="section-title admin-section-title">
+          Recent administrative activity
+        </h2>
+        <Suspense fallback={<ActivitySkeleton />}>
+          <RecentActivitySection supabase={staff.supabase} />
+        </Suspense>
+      </section>
     </>
   );
 }
