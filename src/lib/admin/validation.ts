@@ -114,3 +114,14 @@ export function courseMissingForPublish(c: {
   if (!c.description || c.description.trim().length === 0) missing.push("a description");
   return missing;
 }
+
+/** What is still missing before a subject or topic may be published. */
+export function sectionMissingForPublish(c: {
+  title: string | null;
+  slug: string | null;
+}) {
+  const missing: string[] = [];
+  if (!c.title || c.title.trim().length < TITLE_MIN) missing.push("a title");
+  if (!c.slug || !SLUG_RE.test(c.slug)) missing.push("a valid web address");
+  return missing;
+}

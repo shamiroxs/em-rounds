@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Plus } from "lucide-react";
 import { requireCapability } from "@/lib/admin/access";
 import { formatDateTime } from "@/lib/admin/format";
 import { UUID_RE } from "@/lib/learning";
@@ -8,6 +9,7 @@ import { EmptyState, PageHeader, StatusBadge } from "@/components/admin/ui";
 import { CourseForm } from "@/components/admin/courses/course-form";
 import { CourseStatusControls } from "@/components/admin/courses/course-status-controls";
 import { DeleteCourseButton } from "@/components/admin/courses/delete-course-button";
+import { ReorderButtons } from "@/components/admin/structure/reorder-buttons";
 
 export const instant = false;
 
@@ -43,12 +45,13 @@ export default async function CourseDetailPage({
   // Editors may change drafts only. The database enforces the same rule.
   const canEdit = status === "draft" || canPublish;
 
-  const { data: subjects } = await staff.supabase
+  const { data: subjects, error: subjectsError } = await staff.supabase
     .from("subjects")
-    .select("id, title, status, sort_order")
+    .select("id, title, slug, status, sort_order, topics(count)")
     .eq("course_id", courseId)
     .order("sort_order")
-    .order("title");
+    .order("title")
+    .order("id");
 
   return (
     <>
@@ -64,7 +67,7 @@ export default async function CourseDetailPage({
         </div>
       )}
 
-      <div className="admin-form-grid" style={{ maxWidth: "46rem" }}>
+      <div className="admin-form-grid" style={{ maxWidth: "52rem" }}>
         <section className="surface-card" aria-labelledby="details-heading">
           <h2 id="details-heading" className="section-title admin-section-title">Course details</h2>
           {canEdit ? (
@@ -108,23 +111,59 @@ export default async function CourseDetailPage({
         )}
 
         <section className="surface-card" aria-labelledby="subjects-heading">
-          <h2 id="subjects-heading" className="section-title admin-section-title">Subjects in this course</h2>
-          {!subjects || subjects.length === 0 ? (
-            <EmptyState title="No subjects yet" description="Subjects and topics are managed in the next module." />
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "0.8rem", marginBottom: "0.8rem" }}>
+            <h2 id="subjects-heading" className="section-title admin-section-title" style={{ margin: 0 }}>
+              Subjects in this course
+            </h2>
+            {status !== "archived" && (
+              <Link href={`/admin/courses/${course.id}/subjects/new`} className="primary-button">
+                <Plus size={18} aria-hidden style={{ marginRight: "0.4rem" }} /> Add subject
+              </Link>
+            )}
+          </div>
+          {subjectsError ? (
+            <div className="error-box" role="alert">Subjects could not be loaded. Refresh the page to try again.</div>
+          ) : !subjects || subjects.length === 0 ? (
+            <EmptyState title="No subjects yet" description="Add the first subject to start building this course." />
           ) : (
             <div className="admin-table-wrap">
               <table className="admin-table">
                 <thead>
-                  <tr><th scope="col">Subject</th><th scope="col">Status</th><th scope="col">Order</th></tr>
+                  <tr>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Topics</th>
+                    <th scope="col">Order</th>
+                    {canPublish && <th scope="col">Move</th>}
+                  </tr>
                 </thead>
                 <tbody>
-                  {subjects.map((s) => (
-                    <tr key={s.id}>
-                      <td>{s.title}</td>
-                      <td><StatusBadge status={s.status} /></td>
-                      <td>{s.sort_order}</td>
-                    </tr>
-                  ))}
+                  {subjects.map((s, i) => {
+                    const topicCount =
+                      (s.topics as unknown as { count: number }[] | null)?.[0]?.count ?? 0;
+                    return (
+                      <tr key={s.id}>
+                        <td>
+                          <Link href={`/admin/subjects/${s.id}`} className="text-link">{s.title}</Link>
+                          <div className="admin-stat-sub">{s.slug}</div>
+                        </td>
+                        <td><StatusBadge status={s.status} /></td>
+                        <td>{topicCount}</td>
+                        <td>{s.sort_order}</td>
+                        {canPublish && (
+                          <td>
+                            <ReorderButtons
+                              kind="subject"
+                              id={s.id}
+                              title={s.title}
+                              isFirst={i === 0}
+                              isLast={i === subjects.length - 1}
+                            />
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
