@@ -18,7 +18,7 @@ function sanitize(value: unknown, depth = 0): unknown {
 }
 
 export type AuditEntry = {
-  actorUserId: string;
+    actorUserId: string | null;
   /** e.g. "course.create", "lecture.publish" */
   action: string;
   /** e.g. "course", "lecture" */

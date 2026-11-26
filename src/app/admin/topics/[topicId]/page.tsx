@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Plus } from "lucide-react";
 import { requireCapability } from "@/lib/admin/access";
 import { formatDateTime } from "@/lib/admin/format";
 import { UUID_RE } from "@/lib/learning";
@@ -125,11 +126,20 @@ export default async function TopicDetailPage({
         )}
 
         <section className="surface-card" aria-labelledby="lectures-heading">
-          <h2 id="lectures-heading" className="section-title admin-section-title">Lectures in this topic</h2>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "0.8rem", marginBottom: "0.8rem" }}>
+            <h2 id="lectures-heading" className="section-title admin-section-title" style={{ margin: 0 }}>
+              Lectures in this topic
+            </h2>
+            {status !== "archived" && (
+              <Link href={`/admin/lectures/new?topicId=${topic.id}`} className="primary-button">
+                <Plus size={18} aria-hidden style={{ marginRight: "0.4rem" }} /> Add lecture
+              </Link>
+            )}
+          </div>
           {lecturesError ? (
             <div className="error-box" role="alert">Lectures could not be loaded. Refresh the page to try again.</div>
           ) : !lectures || lectures.length === 0 ? (
-            <EmptyState title="No lectures yet" description="Lecture management is added in the next module." />
+            <EmptyState title="No lectures yet" description="Add the first lecture to this topic." />
           ) : (
             <div className="admin-table-wrap">
               <table className="admin-table">
@@ -139,7 +149,7 @@ export default async function TopicDetailPage({
                 <tbody>
                   {lectures.map((l) => (
                     <tr key={l.id}>
-                      <td>{l.title}</td>
+                      <td><Link href={`/admin/lectures/${l.id}`} className="text-link">{l.title}</Link></td>
                       <td><StatusBadge status={l.status} /></td>
                       <td>{l.sort_order}</td>
                     </tr>
