@@ -40,12 +40,12 @@ export default function HomePage() {
       </div>
 
       <div className="card-grid">
-        <HomeSection title="Suggested QBank" icon={<ListChecks size={20} aria-hidden />}
-          empty="Suggested practice questions will appear here." />
+        {/**<HomeSection title="Suggested QBank" icon={<ListChecks size={20} aria-hidden />}
+          empty="Suggested practice questions will appear here." /> 
         <HomeSection title="Suggested video" icon={<PlayCircle size={20} aria-hidden />}
           empty="A lecture picked for you will appear here." />
         <HomeSection title="Recent video" icon={<Clock size={20} aria-hidden />}
-          empty="Lectures you watch will appear here." />
+          empty="Lectures you watch will appear here." />**/}
         <HomeSection title="Share" icon={<Share2 size={20} aria-hidden />}>
           <p className="muted-copy" style={{ marginBottom: "0.75rem" }}>
             Know a colleague who would benefit?
