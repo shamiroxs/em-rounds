@@ -1,5 +1,8 @@
 import { Clock, ListChecks, PlayCircle, Share2 } from "lucide-react";
 import { ShareButton } from "@/components/learning/share-button";
+import { Suspense } from "react";
+import { AnnouncementsPanel } from "@/components/announcements-panel";
+import { requireUser } from "@/lib/auth";
 
 function HomeSection({
   title,
@@ -12,6 +15,7 @@ function HomeSection({
   empty?: string;
   children?: React.ReactNode;
 }) {
+
   return (
     <section className="surface-card">
       <h2
@@ -27,7 +31,8 @@ function HomeSection({
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { supabase } = await requireUser();
   return (
     <>
       <h1 className="page-title">Welcome back</h1>
@@ -38,6 +43,10 @@ export default function HomePage() {
         <div className="breathe-circle" aria-hidden />
         <p className="relief-text">Breathe in… and out.</p>
       </div>
+
+      <Suspense fallback={null}>
+        <AnnouncementsPanel supabase={supabase} />
+      </Suspense>
 
       <div className="card-grid">
         {/**<HomeSection title="Suggested QBank" icon={<ListChecks size={20} aria-hidden />}
