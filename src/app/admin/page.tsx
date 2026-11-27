@@ -6,6 +6,8 @@ import {
   RecentActivitySection,
 } from "@/components/admin/dashboard-sections";
 
+import Link from "next/link";
+
 export const instant = false;
 
 function StatsSkeleton() {
@@ -53,9 +55,12 @@ export default async function AdminHomePage() {
       </Suspense>
 
       <section className="admin-section" aria-labelledby="recent-activity">
-        <h2 id="recent-activity" className="section-title admin-section-title">
-          Recent administrative activity
-        </h2>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "0.6rem", marginBottom: "0.8rem" }}>
+            <h2 id="recent-activity" className="section-title admin-section-title" style={{ margin: 0 }}>
+              Recent administrative activity
+            </h2>
+            <Link href="/admin/audit-log" className="text-link">View full audit log →</Link>
+        </div>
         <Suspense fallback={<ActivitySkeleton />}>
           <RecentActivitySection supabase={staff.supabase} />
         </Suspense>

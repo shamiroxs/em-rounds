@@ -24,7 +24,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/courses", label: "Courses", icon: "courses", capability: "content.edit", available: true },
   { href: "/admin/lectures", label: "Lectures", icon: "lectures", capability: "content.edit", available: true },
   { href: "/admin/questions", label: "Questions", icon: "questions", capability: "content.edit", available: true },
-  { href: "/admin/announcements", label: "Announcements", icon: "announcements", capability: "announcements.manage", available: false },
-  { href: "/admin/users", label: "Users", icon: "users", capability: "users.view", available: false },
-  { href: "/admin/audit-log", label: "Audit log", icon: "audit", capability: "audit.view", available: false },
+  { href: "/admin/announcements", label: "Announcements", icon: "announcements", capability: "announcements.manage", available: true },
+  { href: "/admin/users", label: "Users", icon: "users", capability: "users.view", available: true },
+  { href: "/admin/audit-log", label: "Audit log", icon: "audit", capability: "audit.view", available: true },
 ];
